@@ -59,6 +59,7 @@ static_cdn/ # Collected static files for deployment (can be large)
 .venv/
 venv/
 env/
+.env
 
 # IDE-specific files
 .idea/ # PyCharm
