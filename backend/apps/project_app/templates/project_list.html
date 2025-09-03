@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <h2>Project List</h2>
+        {% if user.role == "admin" %}
+            <a href="{% url 'projects:create-project-page' %}">Create Project</a>
+        {% endif %}
+        {% for project in projects %}
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                <h3>{{ project.name }}</h3>
+                <p>{{ project.description }}</p>
+                <a href="{% url 'projects:project-detail-page' project.id %}">View Details</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
