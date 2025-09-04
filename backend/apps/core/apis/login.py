@@ -6,6 +6,7 @@ from rest_framework import status
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.http import HttpResponseRedirect
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db import transaction
@@ -31,7 +32,6 @@ class LoginView(APIView):
             "redirect_uri": settings.GOOGLE_REDIRECT_URL,
             "grant_type": "authorization_code",
         }
-        print(token_url, data, "DATA")
 
         resp = requests.post(token_url, data=data)
         tokens = resp.json()
@@ -55,16 +55,21 @@ class LoginView(APIView):
 
             refresh = RefreshToken.for_user(user)
 
-        return Response({
-            "user": {
-                "id": user.id,
-                "email": user.email,
-                "name": user_info.get("name"),
-                "picture": user_info.get("picture"),
-            },
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        })
+        redirect_params = {
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+            "user_id": user.id,
+            "email": user.email,
+            "role": user.role,
+            "name": user_info.get("name", ""),
+            "picture": user_info.get("picture", ""),
+        }
+
+        redirect_url = settings.FRONTEND_REDIRECT_URL
+        param_strings = [f"{key}={value}" for key, value in redirect_params.items()]
+        final_url = f"{redirect_url}?{'&'.join(param_strings)}"
+
+        return HttpResponseRedirect(redirect_to=final_url)
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -91,6 +96,12 @@ class LoginView(APIView):
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
                 "expires_at": refresh.access_token.payload["exp"],
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "name": user.get_full_name() or user.username,
+                    "role": user.role,
+                }
             }, status=status.HTTP_200_OK)
 
         return Response({"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)

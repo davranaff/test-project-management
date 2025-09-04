@@ -156,7 +156,7 @@ MEDIA_URL = os.getenv("MEDIA_URL")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "core.User"
-
+FRONTEND_REDIRECT_URL= os.getenv("FRONTEND_REDIRECT_URL")
 
 ACCOUNT_EMAIL_VERIFICATION=os.getenv("ACCOUNT_EMAIL_VERIFICATION") == "True"
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

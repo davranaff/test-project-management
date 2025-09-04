@@ -19,6 +19,7 @@ class TaskSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def create(self, validated_data):
+        print(validated_data)
         return Task.objects.create(**validated_data)
 
     class Meta:
